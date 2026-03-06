@@ -4,44 +4,33 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.activity.viewModels
+import com.example.civilera.data.CivileraDatabase
+import com.example.civilera.data.CivileraRepository
+import com.example.civilera.ui.CivileraApp
+import com.example.civilera.ui.CivileraViewModel
+import com.example.civilera.ui.CivileraViewModelFactory
 import com.example.civilera.ui.theme.CivileraTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        val database = CivileraDatabase.getDatabase(this)
+        val repository = CivileraRepository(
+            database.siteDao(),
+            database.materialDao(),
+            database.transactionDao()
+        )
+        val viewModel: CivileraViewModel by viewModels {
+            CivileraViewModelFactory(repository)
+        }
+
         enableEdgeToEdge()
         setContent {
             CivileraTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                CivileraApp(viewModel)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CivileraTheme {
-        Greeting("Android")
     }
 }
